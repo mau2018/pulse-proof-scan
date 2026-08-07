@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, CameraOff, Heart, ShieldCheck, ShieldX, EyeOff } from "lucide-react";
+import { useFaceTracker } from "@/lib/use-face-tracker";
+
 
 export const Route = createFileRoute("/scanner")({
   head: () => ({

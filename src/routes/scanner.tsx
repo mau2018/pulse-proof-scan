@@ -138,7 +138,7 @@ function Scanner() {
       const { data } = ctx.getImageData(0, 0, c.width, c.height);
       let sum = 0;
       for (let i = 0; i < data.length; i += 4) {
-        sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+        sum += 0.2126 * data[i]! + 0.7152 * data[i + 1]! + 0.0722 * data[i + 2]!;
       }
       const avg = sum / (data.length / 4);
       setLuma(avg);
@@ -182,7 +182,7 @@ function Scanner() {
       const h = (canvas.height = canvas.clientHeight * 2);
       const s = stateRef.current;
       const alive = s === "human" || s === "scanning";
-      const tone = TONE_HEX[META[s].tone];
+      const tone = TONE_HEX[META[s].tone] ?? "#34e39b";
 
       if (alive) {
         phase += (72 / 60) / 60;

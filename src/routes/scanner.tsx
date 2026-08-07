@@ -100,7 +100,7 @@ function Scanner() {
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
-  // Demo keyboard shortcuts: H = verified human, D = deepfake, R = reset.
+  // Demo keyboard shortcuts: H = human, D = deepfake, B = blocked, R = reset.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -114,7 +114,12 @@ function Scanner() {
         prevRef.current = "deepfake";
         setState("deepfake");
         setBpm(0);
+      } else if (k === "b") {
+        prevRef.current = stateRef.current === "blocked" ? "human" : stateRef.current;
+        setState("blocked");
+        setBpm(0);
       } else if (k === "r") {
+
         prevRef.current = camOn ? "scanning" : "idle";
         setState(camOn ? "scanning" : "idle");
         setBpm(0);

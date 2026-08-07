@@ -389,7 +389,7 @@ function Scanner() {
           </AnimatePresence>
 
           <div className="absolute bottom-5 right-5 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            luma {luma.toFixed(0)} · 30 fps
+            luma {luma.toFixed(0)} · {face ? "face lock" : "no face"} · 30 fps
           </div>
         </div>
 

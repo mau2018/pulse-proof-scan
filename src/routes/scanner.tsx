@@ -279,9 +279,25 @@ function Scanner() {
             </div>
           )}
 
-          {/* Targeting reticle */}
+          {/* Targeting reticle — tracks the detected face */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/2 top-1/2 h-[62%] w-[42%] -translate-x-1/2 -translate-y-1/2">
+            <motion.div
+              animate={
+                face
+                  ? {
+                      left: `${face.left * 100}%`,
+                      top: `${face.top * 100}%`,
+                      width: `${face.width * 100}%`,
+                      height: `${face.height * 100}%`,
+                      x: "0%",
+                      y: "0%",
+                    }
+                  : { left: "50%", top: "50%", width: "42%", height: "62%", x: "-50%", y: "-50%" }
+              }
+              transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.5 }}
+              className="absolute"
+              style={face ? { filter: "drop-shadow(0 0 12px rgba(34,225,255,0.55))" } : undefined}
+            >
               {[
                 "left-0 top-0 border-l-2 border-t-2",
                 "right-0 top-0 border-r-2 border-t-2",
@@ -291,11 +307,13 @@ function Scanner() {
                 <span
                   key={c}
                   className={`absolute h-8 w-8 ${c} ${
-                    tone === "alert"
-                      ? "border-destructive"
-                      : tone === "warn"
-                        ? "border-warn"
-                        : "border-signal"
+                    face
+                      ? "border-[#22e1ff]"
+                      : tone === "alert"
+                        ? "border-destructive"
+                        : tone === "warn"
+                          ? "border-warn"
+                          : "border-signal"
                   }`}
                 />
               ))}
@@ -303,13 +321,33 @@ function Scanner() {
                 animate={{ top: ["4%", "94%", "4%"] }}
                 transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
                 className={`absolute left-0 right-0 h-px ${
-                  tone === "alert" ? "bg-destructive/70" : "bg-signal/70"
+                  face ? "bg-[#22e1ff]/70" : tone === "alert" ? "bg-destructive/70" : "bg-signal/70"
                 }`}
               />
-              <span className="absolute left-1/2 top-1/2 h-6 w-px -translate-x-1/2 -translate-y-1/2 bg-signal/40" />
-              <span className="absolute left-1/2 top-1/2 h-px w-6 -translate-x-1/2 -translate-y-1/2 bg-signal/40" />
-            </div>
+              <span
+                className={`absolute left-1/2 top-1/2 h-6 w-px -translate-x-1/2 -translate-y-1/2 ${face ? "bg-[#22e1ff]/50" : "bg-signal/40"}`}
+              />
+              <span
+                className={`absolute left-1/2 top-1/2 h-px w-6 -translate-x-1/2 -translate-y-1/2 ${face ? "bg-[#22e1ff]/50" : "bg-signal/40"}`}
+              />
+
+              {/* Tracking label */}
+              <span
+                className={`absolute -top-7 left-0 whitespace-nowrap rounded-sm border px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] backdrop-blur-md ${
+                  face
+                    ? "border-[#22e1ff]/60 bg-[#22e1ff]/10 text-[#22e1ff]"
+                    : "border-border/60 bg-background/60 text-muted-foreground"
+                }`}
+              >
+                {face
+                  ? `Target locked · ${(face.score * 100).toFixed(0)}%`
+                  : trackerFailed
+                    ? "Tracker unavailable"
+                    : "Scanning for biology…"}
+              </span>
+            </motion.div>
           </div>
+
 
           {/* Verdict banner */}
           <AnimatePresence mode="wait">

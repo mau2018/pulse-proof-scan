@@ -302,7 +302,7 @@ function Scanner() {
               }
               transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.5 }}
               className="absolute"
-              style={face ? { filter: "drop-shadow(0 0 12px rgba(34,225,255,0.55))" } : undefined}
+              style={{ filter: face ? "drop-shadow(0 0 12px rgba(34,225,255,0.55))" : "none" }}
             >
               {[
                 "left-0 top-0 border-l-2 border-t-2",

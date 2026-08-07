@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, CameraOff, Heart, ShieldCheck, ShieldX, EyeOff } from "lucide-react";
+import { useFaceTracker } from "@/lib/use-face-tracker";
+
 
 export const Route = createFileRoute("/scanner")({
   head: () => ({
@@ -50,6 +52,10 @@ function Scanner() {
   const [bpm, setBpm] = useState(0);
   const [luma, setLuma] = useState(0);
 
+  // Real face tracking (MediaPipe BlazeFace) over the live video element.
+  const { face, failed: trackerFailed } = useFaceTracker(videoRef, camOn);
+
+
   // Latest state for animation/sampling loops without re-subscribing.
   const stateRef = useRef<State>("idle");
   const prevRef = useRef<State>("idle");
@@ -94,7 +100,7 @@ function Scanner() {
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
-  // Demo keyboard shortcuts: H = verified human, D = deepfake, R = reset.
+  // Demo keyboard shortcuts: H = human, D = deepfake, B = blocked, R = reset.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -108,7 +114,12 @@ function Scanner() {
         prevRef.current = "deepfake";
         setState("deepfake");
         setBpm(0);
+      } else if (k === "b") {
+        prevRef.current = stateRef.current === "blocked" ? "human" : stateRef.current;
+        setState("blocked");
+        setBpm(0);
       } else if (k === "r") {
+
         prevRef.current = camOn ? "scanning" : "idle";
         setState(camOn ? "scanning" : "idle");
         setBpm(0);
@@ -279,9 +290,25 @@ function Scanner() {
             </div>
           )}
 
-          {/* Targeting reticle */}
+          {/* Targeting reticle — tracks the detected face */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/2 top-1/2 h-[62%] w-[42%] -translate-x-1/2 -translate-y-1/2">
+            <motion.div
+              animate={
+                face
+                  ? {
+                      left: `${face.left * 100}%`,
+                      top: `${face.top * 100}%`,
+                      width: `${face.width * 100}%`,
+                      height: `${face.height * 100}%`,
+                      x: "0%",
+                      y: "0%",
+                    }
+                  : { left: "50%", top: "50%", width: "42%", height: "62%", x: "-50%", y: "-50%" }
+              }
+              transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.5 }}
+              className="absolute"
+              style={{ filter: face ? "drop-shadow(0 0 12px rgba(34,225,255,0.55))" : "none" }}
+            >
               {[
                 "left-0 top-0 border-l-2 border-t-2",
                 "right-0 top-0 border-r-2 border-t-2",
@@ -291,11 +318,13 @@ function Scanner() {
                 <span
                   key={c}
                   className={`absolute h-8 w-8 ${c} ${
-                    tone === "alert"
-                      ? "border-destructive"
-                      : tone === "warn"
-                        ? "border-warn"
-                        : "border-signal"
+                    face
+                      ? "border-[#22e1ff]"
+                      : tone === "alert"
+                        ? "border-destructive"
+                        : tone === "warn"
+                          ? "border-warn"
+                          : "border-signal"
                   }`}
                 />
               ))}
@@ -303,13 +332,33 @@ function Scanner() {
                 animate={{ top: ["4%", "94%", "4%"] }}
                 transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
                 className={`absolute left-0 right-0 h-px ${
-                  tone === "alert" ? "bg-destructive/70" : "bg-signal/70"
+                  face ? "bg-[#22e1ff]/70" : tone === "alert" ? "bg-destructive/70" : "bg-signal/70"
                 }`}
               />
-              <span className="absolute left-1/2 top-1/2 h-6 w-px -translate-x-1/2 -translate-y-1/2 bg-signal/40" />
-              <span className="absolute left-1/2 top-1/2 h-px w-6 -translate-x-1/2 -translate-y-1/2 bg-signal/40" />
-            </div>
+              <span
+                className={`absolute left-1/2 top-1/2 h-6 w-px -translate-x-1/2 -translate-y-1/2 ${face ? "bg-[#22e1ff]/50" : "bg-signal/40"}`}
+              />
+              <span
+                className={`absolute left-1/2 top-1/2 h-px w-6 -translate-x-1/2 -translate-y-1/2 ${face ? "bg-[#22e1ff]/50" : "bg-signal/40"}`}
+              />
+
+              {/* Tracking label */}
+              <span
+                className={`absolute -top-7 left-0 whitespace-nowrap rounded-sm border px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.18em] backdrop-blur-md ${
+                  face
+                    ? "border-[#22e1ff]/60 bg-[#22e1ff]/10 text-[#22e1ff]"
+                    : "border-border/60 bg-background/60 text-muted-foreground"
+                }`}
+              >
+                {face
+                  ? `Target locked · ${(face.score * 100).toFixed(0)}%`
+                  : trackerFailed
+                    ? "Tracker unavailable"
+                    : "Scanning for biology…"}
+              </span>
+            </motion.div>
           </div>
+
 
           {/* Verdict banner */}
           <AnimatePresence mode="wait">
@@ -340,7 +389,7 @@ function Scanner() {
           </AnimatePresence>
 
           <div className="absolute bottom-5 right-5 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            luma {luma.toFixed(0)} · 30 fps
+            luma {luma.toFixed(0)} · {face ? "face lock" : "no face"} · 30 fps
           </div>
         </div>
 
@@ -388,7 +437,9 @@ function Scanner() {
               {[
                 ["H", "Verified human · 72 BPM"],
                 ["D", "Deepfake detected · flatline"],
+                ["B", "Camera blocked · occluded"],
                 ["R", "Reset scan"],
+
               ].map(([k, d]) => (
                 <li key={k} className="flex items-center gap-3">
                   <kbd className="rounded-sm border border-signal/30 px-2 py-1 text-signal">{k}</kbd>

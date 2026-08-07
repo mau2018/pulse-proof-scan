@@ -52,6 +52,10 @@ function Scanner() {
   const [bpm, setBpm] = useState(0);
   const [luma, setLuma] = useState(0);
 
+  // Real face tracking (MediaPipe BlazeFace) over the live video element.
+  const { face, failed: trackerFailed } = useFaceTracker(videoRef, camOn);
+
+
   // Latest state for animation/sampling loops without re-subscribing.
   const stateRef = useRef<State>("idle");
   const prevRef = useRef<State>("idle");

@@ -437,7 +437,9 @@ function Scanner() {
               {[
                 ["H", "Verified human · 72 BPM"],
                 ["D", "Deepfake detected · flatline"],
+                ["B", "Camera blocked · occluded"],
                 ["R", "Reset scan"],
+
               ].map(([k, d]) => (
                 <li key={k} className="flex items-center gap-3">
                   <kbd className="rounded-sm border border-signal/30 px-2 py-1 text-signal">{k}</kbd>

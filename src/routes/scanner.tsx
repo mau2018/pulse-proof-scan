@@ -51,6 +51,7 @@ function Scanner() {
   const [error, setError] = useState<string | null>(null);
   const [bpm, setBpm] = useState(0);
   const [luma, setLuma] = useState(0);
+  const [attack, setAttack] = useState(false);
 
   // Real face tracking (MediaPipe BlazeFace) over the live video element.
   const { face, failed: trackerFailed } = useFaceTracker(videoRef, camOn);
@@ -58,7 +59,7 @@ function Scanner() {
 
   // Latest state for animation/sampling loops without re-subscribing.
   const stateRef = useRef<State>("idle");
-  const prevRef = useRef<State>("idle");
+  const attackRef = useRef(false);
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -88,8 +89,8 @@ function Scanner() {
       setState("scanning");
       setTimeout(() => {
         if (stateRef.current === "scanning") {
-          setState("human");
-          setBpm(72);
+          setState(attackRef.current ? "deepfake" : "human");
+          setBpm(attackRef.current ? 0 : 72);
         }
       }, 2200);
     } catch {
@@ -100,34 +101,14 @@ function Scanner() {
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
-  // Demo keyboard shortcuts: H = human, D = deepfake, B = blocked, R = reset.
+  // Toggle drives the verdict unless the sensor is physically blocked.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
-      const k = e.key.toLowerCase();
-      if (k === "h") {
-        prevRef.current = "human";
-        setState("human");
-        setBpm(72);
-      } else if (k === "d") {
-        prevRef.current = "deepfake";
-        setState("deepfake");
-        setBpm(0);
-      } else if (k === "b") {
-        prevRef.current = stateRef.current === "blocked" ? "human" : stateRef.current;
-        setState("blocked");
-        setBpm(0);
-      } else if (k === "r") {
-
-        prevRef.current = camOn ? "scanning" : "idle";
-        setState(camOn ? "scanning" : "idle");
-        setBpm(0);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [camOn]);
+    attackRef.current = attack;
+    if (!camOn) return;
+    if (stateRef.current === "blocked" || stateRef.current === "scanning") return;
+    setState(attack ? "deepfake" : "human");
+    setBpm(attack ? 0 : 72);
+  }, [attack, camOn]);
 
   // Real feature: sample webcam luminance -> auto CAMERA BLOCKED.
   useEffect(() => {
@@ -157,19 +138,18 @@ function Scanner() {
       const cur = stateRef.current;
       if (avg < 14) {
         if (cur !== "blocked") {
-          prevRef.current = cur;
           setState("blocked");
           setBpm(0);
         }
       } else if (cur === "blocked") {
-        const back = prevRef.current === "blocked" ? "human" : prevRef.current;
-        setState(back === "idle" ? "human" : back);
-        setBpm(back === "deepfake" ? 0 : 72);
+        setState(attackRef.current ? "deepfake" : "human");
+        setBpm(attackRef.current ? 0 : 72);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [camOn]);
+
 
   // Canvas ECG waveform.
   useEffect(() => {

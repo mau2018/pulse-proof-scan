@@ -10,13 +10,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "PulseProof detects AI deepfakes by reading human micro-vascular blood flow through the camera, not by analyzing pixels.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
       { property: "og:title", content: "PulseProof — Deepfakes Can't Fake a Heartbeat" },
       {
         property: "og:description",
         content:
-          "Liveness verification powered by remote photoplethysmography. Real skin. Real pulse. Real person.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
     ],
   }),

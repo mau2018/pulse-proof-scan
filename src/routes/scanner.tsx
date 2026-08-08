@@ -430,12 +430,22 @@ function Scanner() {
           <div className="flex flex-wrap items-center gap-4">
             <button
               type="button"
-              onClick={() =>
-                toast.success("Cryptographic Certificate Generated & Saved locally", {
-                  description: "Audit hash signed · ready for compliance export",
-                  icon: <FileText className="h-4 w-4 text-signal" />,
-                })
-              }
+              onClick={async () => {
+                try {
+                  const { generateCertificate } = await import("@/lib/certificate");
+                  const { auditId } = generateCertificate(
+                    attack ? "DEEPFAKE DETECTED" : "VERIFIED HUMAN",
+                  );
+                  toast.success("Cryptographic Certificate Generated & Saved locally", {
+                    description: `Audit ${auditId.slice(0, 16)}… · PulseProof_Compliance_Report.pdf`,
+                    icon: <FileText className="h-4 w-4 text-signal" />,
+                  });
+                } catch {
+                  toast.error("Certificate export failed", {
+                    description: "Could not generate the PDF report",
+                  });
+                }
+              }}
               className="inline-flex items-center gap-2.5 rounded-sm border border-border/70 bg-background/60 px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-foreground backdrop-blur-md transition-all hover:border-signal/50 hover:bg-signal/10 hover:text-signal hover:shadow-[0_0_22px_oklch(0.82_0.2_158/18%)]"
             >
               <FileText className="h-4 w-4" />

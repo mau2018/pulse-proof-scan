@@ -1,42 +1,54 @@
-# PulseProof Defense
+PulseProof: Real-Time Biological Deepfake Detection
+PulseProof is a lightweight, zero-latency cybersecurity web platform that detects AI video deepfakes and identity spoofing in real time using standard webcam optics.
 
-I am building a cybersecurity startup called PulseProof. I need a premium, multi-page web application built with React, Tailwind CSS, and Framer Motion. Avoid generic, boxy AI designs; I want an 'Obsidian Dark Mode' aesthetic with glowing emerald accents, glassmorphism, and sleek typography.
+Instead of searching for visual pixel flaws in AI-generated video—a method becoming obsolete as generative AI models rapidly mature—PulseProof verifies human biology. It turns any basic browser webcam into a clinical-grade biological liveness scanner by capturing micro-vascular blood flow dynamics and active light reflection patterns.
 
-Create a navigation bar with three tabs: 'Home', 'Technology', and 'Live Scanner'.
+The Problem We Solve
+Deepfake technology has crossed the threshold from consumer media fun to critical infrastructure threat. PulseProof secures against:
 
-Home: A stunning landing page explaining that we detect AI deepfakes using human micro-vascular blood flow instead of pixel analysis. Include a bold hero section and a futuristic call-to-action button.
+Educational & Online Proctoring Fraud: Students and malicious actors use virtual cameras to bypass remote proctoring software during examinations.
 
-Technology: A sleek breakdown of our two core features: Remote Photoplethysmography (rPPG) and Sensor Occlusion Guards.
+Remote Hiring & Enterprise Fraud: Impostors use real-time face-swapping software (e.g., DeepFaceLive) during technical job interviews.
 
-Live Scanner: A functional dashboard that accesses the user's webcam. It must include a targeting reticle overlay. Add a simulated real-time ECG/BPM waveform using Recharts or HTML5 Canvas.
+Fintech & Passport KYC Bypass: Fraudsters bypass passive "liveness checks" using 3D avatars or pre-recorded video loops to execute money laundering.
 
-Crucial Demo Mechanics for the Scanner: Implement global keyboard listeners for a startup pitch demo:
+Executive Video Impersonation: Cybercriminals generate synthetic video and voice clones of corporate leadership to execute fraudulent wire transfers.
 
-Pressing 'H' triggers the 'VERIFIED HUMAN' state (green accents, healthy 72 BPM pulse).
+How It Works (The Core Science)
+PulseProof operates 100% client-side, ensuring absolute privacy with zero video streams sent to remote cloud servers. It relies on two primary non-invasive biological indicators:
 
-Pressing 'D' triggers the 'DEEPFAKE DETECTED' state (red flashing UI, 0 BPM flatline).
+1. Remote Photoplethysmography (rPPG)
+Every heartbeat pumps blood through micro-capillaries under human facial skin, causing subtle fluctuations in the green light absorption channel.
 
-Actual working feature: Sample the webcam's pixel luminance. If the camera is covered (brightness drops near zero), automatically trigger a 'CAMERA BLOCKED' state
+The browser extracts raw RGB pixel averages frame-by-frame from a targeted region of interest using the HTML5 Canvas API and applies Fast Fourier Transform (FFT) signal analysis to plot a live Heart Rate (BPM) waveform.
 
-This project was built with [Lovable](https://lovable.dev).
+The Trap: AI avatars and pre-recorded videos do not possess live subcutaneous circulatory dynamics, causing their sub-visual color channels to flatline.
 
-**Live app**: https://pulse-proof-scan.lovable.app
+2. Sensor Occlusion Guards
+The engine samples average pixel luminance (brightness).
 
-## Build with Lovable
+If light levels drop below a threshold (e.g., the camera is covered or blocked), the engine immediately triggers a CAMERA BLOCKED / NO SIGNAL security state.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/e1311e92-061c-4640-8bb2-479571864be9).
+Technical Architecture & Stack
+PulseProof is built using a modern, fast, and highly efficient edge-computing tech stack, requiring zero cloud GPUs or backend infrastructure costs.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Frontend Framework: React / Next.js
 
-## Development
+Styling: Tailwind CSS & Framer Motion (Obsidian dark-mode cybersecurity terminal UI)
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Computer Vision Engine: HTML5 Canvas API + navigator.mediaDevices.getUserMedia for frame-by-frame RGB extraction
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+Face Tracking: MediaPipe / face-api.js for lightweight, in-browser targeting
+
+Telemetry Visualization: Recharts / Chart.js for real-time cardiac waveform rendering
+
+Audit & Compliance: jsPDF for client-side generation of official cryptographic security verification certificates
+
+Key Features
+Zero-Latency Detection: Real-time processing completely within the browser.
+
+AI-Resistant: Because it relies on human biology instead of pixel analysis, it cannot be bypassed by improving generative AI models.
+
+Demo Control Panel: Built-in simulation toggle to seamlessly demonstrate deepfake attacks and verified human states.
+
+Compliance Export: Generate and download official cryptographic security audit PDFs locally proving liveness confidence and subject status

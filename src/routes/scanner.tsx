@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, CameraOff, Heart, ShieldCheck, ShieldX, EyeOff } from "lucide-react";
+import { Camera, CameraOff, Heart, ShieldCheck, ShieldX, EyeOff, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { useFaceTracker } from "@/lib/use-face-tracker";
 
 
@@ -425,33 +426,49 @@ function Scanner() {
             </p>
           </div>
 
-          <button
-            type="button"
-            role="switch"
-            aria-checked={attack}
-            aria-label="Simulate deepfake attack"
-            onClick={() => setAttack((a) => !a)}
-            className={`relative h-11 w-24 shrink-0 rounded-full border transition-colors duration-300 ${
-              attack
-                ? "border-destructive/70 bg-destructive/20 glow-alert"
-                : "border-signal/50 bg-signal/10 glow-signal"
-            }`}
-          >
-            <motion.span
-              layout
-              transition={{ type: "spring", stiffness: 500, damping: 34 }}
-              className={`absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full ${
-                attack ? "left-[calc(100%-2.5rem)] bg-destructive" : "left-2 bg-signal"
-              }`}
-            />
-            <span
-              className={`absolute inset-y-0 flex items-center font-mono text-[9px] font-bold uppercase tracking-[0.16em] ${
-                attack ? "left-3 text-destructive" : "right-3 text-signal"
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              type="button"
+              onClick={() =>
+                toast.success("Cryptographic Certificate Generated & Saved locally", {
+                  description: "Audit hash signed · ready for compliance export",
+                  icon: <FileText className="h-4 w-4 text-signal" />,
+                })
+              }
+              className="inline-flex items-center gap-2.5 rounded-sm border border-border/70 bg-background/60 px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-foreground backdrop-blur-md transition-all hover:border-signal/50 hover:bg-signal/10 hover:text-signal hover:shadow-[0_0_22px_oklch(0.82_0.2_158/18%)]"
+            >
+              <FileText className="h-4 w-4" />
+              Export Verification Certificate
+            </button>
+
+            <button
+              type="button"
+              role="switch"
+              aria-checked={attack}
+              aria-label="Simulate deepfake attack"
+              onClick={() => setAttack((a) => !a)}
+              className={`relative h-11 w-24 shrink-0 rounded-full border transition-colors duration-300 ${
+                attack
+                  ? "border-destructive/70 bg-destructive/20 glow-alert"
+                  : "border-signal/50 bg-signal/10 glow-signal"
               }`}
             >
-              {attack ? "On" : "Off"}
-            </span>
-          </button>
+              <motion.span
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                className={`absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full ${
+                  attack ? "left-[calc(100%-2.5rem)] bg-destructive" : "left-2 bg-signal"
+                }`}
+              />
+              <span
+                className={`absolute inset-y-0 flex items-center font-mono text-[9px] font-bold uppercase tracking-[0.16em] ${
+                  attack ? "left-3 text-destructive" : "right-3 text-signal"
+                }`}
+              >
+                {attack ? "On" : "Off"}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </main>

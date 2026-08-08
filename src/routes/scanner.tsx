@@ -409,31 +409,52 @@ function Scanner() {
             </ul>
           </div>
 
-          <div className="glass rounded-lg p-6">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Demo controls
-            </span>
-            <ul className="mt-4 space-y-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              {[
-                ["H", "Verified human · 72 BPM"],
-                ["D", "Deepfake detected · flatline"],
-                ["B", "Camera blocked · occluded"],
-                ["R", "Reset scan"],
+        </div>
+      </div>
 
-              ].map(([k, d]) => (
-                <li key={k} className="flex items-center gap-3">
-                  <kbd className="rounded-sm border border-signal/30 px-2 py-1 text-signal">{k}</kbd>
-                  {d}
-                </li>
-              ))}
-              <li className="flex items-center gap-3 pt-1">
-                <span className="rounded-sm border border-warn/30 px-2 py-1 text-warn">LENS</span>
-                Cover camera · auto-blocked
-              </li>
-            </ul>
+      {/* Demo control panel */}
+      <div className="glass mt-6 rounded-lg p-6">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Demo control panel
+            </span>
+            <p className="mt-2 font-display text-lg font-semibold">Simulate Deepfake Attack</p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Covering the lens always overrides · sensor blocked
+            </p>
           </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={attack}
+            aria-label="Simulate deepfake attack"
+            onClick={() => setAttack((a) => !a)}
+            className={`relative h-11 w-24 shrink-0 rounded-full border transition-colors duration-300 ${
+              attack
+                ? "border-destructive/70 bg-destructive/20 glow-alert"
+                : "border-signal/50 bg-signal/10 glow-signal"
+            }`}
+          >
+            <motion.span
+              layout
+              transition={{ type: "spring", stiffness: 500, damping: 34 }}
+              className={`absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full ${
+                attack ? "left-[calc(100%-2.5rem)] bg-destructive" : "left-2 bg-signal"
+              }`}
+            />
+            <span
+              className={`absolute inset-y-0 flex items-center font-mono text-[9px] font-bold uppercase tracking-[0.16em] ${
+                attack ? "left-3 text-destructive" : "right-3 text-signal"
+              }`}
+            >
+              {attack ? "On" : "Off"}
+            </span>
+          </button>
         </div>
       </div>
     </main>
   );
+}
 }

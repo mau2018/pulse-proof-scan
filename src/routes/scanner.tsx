@@ -51,6 +51,7 @@ function Scanner() {
   const [error, setError] = useState<string | null>(null);
   const [bpm, setBpm] = useState(0);
   const [luma, setLuma] = useState(0);
+  const [attack, setAttack] = useState(false);
 
   // Real face tracking (MediaPipe BlazeFace) over the live video element.
   const { face, failed: trackerFailed } = useFaceTracker(videoRef, camOn);
@@ -58,7 +59,7 @@ function Scanner() {
 
   // Latest state for animation/sampling loops without re-subscribing.
   const stateRef = useRef<State>("idle");
-  const prevRef = useRef<State>("idle");
+  const attackRef = useRef(false);
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -88,8 +89,8 @@ function Scanner() {
       setState("scanning");
       setTimeout(() => {
         if (stateRef.current === "scanning") {
-          setState("human");
-          setBpm(72);
+          setState(attackRef.current ? "deepfake" : "human");
+          setBpm(attackRef.current ? 0 : 72);
         }
       }, 2200);
     } catch {
@@ -100,34 +101,14 @@ function Scanner() {
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
-  // Demo keyboard shortcuts: H = human, D = deepfake, B = blocked, R = reset.
+  // Toggle drives the verdict unless the sensor is physically blocked.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
-      const k = e.key.toLowerCase();
-      if (k === "h") {
-        prevRef.current = "human";
-        setState("human");
-        setBpm(72);
-      } else if (k === "d") {
-        prevRef.current = "deepfake";
-        setState("deepfake");
-        setBpm(0);
-      } else if (k === "b") {
-        prevRef.current = stateRef.current === "blocked" ? "human" : stateRef.current;
-        setState("blocked");
-        setBpm(0);
-      } else if (k === "r") {
-
-        prevRef.current = camOn ? "scanning" : "idle";
-        setState(camOn ? "scanning" : "idle");
-        setBpm(0);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [camOn]);
+    attackRef.current = attack;
+    if (!camOn) return;
+    if (stateRef.current === "blocked" || stateRef.current === "scanning") return;
+    setState(attack ? "deepfake" : "human");
+    setBpm(attack ? 0 : 72);
+  }, [attack, camOn]);
 
   // Real feature: sample webcam luminance -> auto CAMERA BLOCKED.
   useEffect(() => {
@@ -157,19 +138,18 @@ function Scanner() {
       const cur = stateRef.current;
       if (avg < 14) {
         if (cur !== "blocked") {
-          prevRef.current = cur;
           setState("blocked");
           setBpm(0);
         }
       } else if (cur === "blocked") {
-        const back = prevRef.current === "blocked" ? "human" : prevRef.current;
-        setState(back === "idle" ? "human" : back);
-        setBpm(back === "deepfake" ? 0 : 72);
+        setState(attackRef.current ? "deepfake" : "human");
+        setBpm(attackRef.current ? 0 : 72);
       }
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [camOn]);
+
 
   // Canvas ECG waveform.
   useEffect(() => {
@@ -429,29 +409,49 @@ function Scanner() {
             </ul>
           </div>
 
-          <div className="glass rounded-lg p-6">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              Demo controls
-            </span>
-            <ul className="mt-4 space-y-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-              {[
-                ["H", "Verified human · 72 BPM"],
-                ["D", "Deepfake detected · flatline"],
-                ["B", "Camera blocked · occluded"],
-                ["R", "Reset scan"],
+        </div>
+      </div>
 
-              ].map(([k, d]) => (
-                <li key={k} className="flex items-center gap-3">
-                  <kbd className="rounded-sm border border-signal/30 px-2 py-1 text-signal">{k}</kbd>
-                  {d}
-                </li>
-              ))}
-              <li className="flex items-center gap-3 pt-1">
-                <span className="rounded-sm border border-warn/30 px-2 py-1 text-warn">LENS</span>
-                Cover camera · auto-blocked
-              </li>
-            </ul>
+      {/* Demo control panel */}
+      <div className="glass mt-6 rounded-lg p-6">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              Demo control panel
+            </span>
+            <p className="mt-2 font-display text-lg font-semibold">Simulate Deepfake Attack</p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
+              Covering the lens always overrides · sensor blocked
+            </p>
           </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={attack}
+            aria-label="Simulate deepfake attack"
+            onClick={() => setAttack((a) => !a)}
+            className={`relative h-11 w-24 shrink-0 rounded-full border transition-colors duration-300 ${
+              attack
+                ? "border-destructive/70 bg-destructive/20 glow-alert"
+                : "border-signal/50 bg-signal/10 glow-signal"
+            }`}
+          >
+            <motion.span
+              layout
+              transition={{ type: "spring", stiffness: 500, damping: 34 }}
+              className={`absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full ${
+                attack ? "left-[calc(100%-2.5rem)] bg-destructive" : "left-2 bg-signal"
+              }`}
+            />
+            <span
+              className={`absolute inset-y-0 flex items-center font-mono text-[9px] font-bold uppercase tracking-[0.16em] ${
+                attack ? "left-3 text-destructive" : "right-3 text-signal"
+              }`}
+            >
+              {attack ? "On" : "Off"}
+            </span>
+          </button>
         </div>
       </div>
     </main>

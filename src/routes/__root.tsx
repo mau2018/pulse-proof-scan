@@ -76,11 +76,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PulseProof — Deepfake Detection by Blood Flow" },
+      { title: "PulseProof — Deepfakes Can't Fake a Heartbeat" },
       {
         name: "description",
         content:
-          "PulseProof verifies human presence by reading micro-vascular blood flow, not pixels.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

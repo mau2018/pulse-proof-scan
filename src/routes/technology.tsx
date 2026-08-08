@@ -9,13 +9,13 @@ export const Route = createFileRoute("/technology")({
       {
         name: "description",
         content:
-          "Inside PulseProof: remote photoplethysmography for cardiac liveness and sensor occlusion guards that block camera tampering and injection attacks.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
-      { property: "og:title", content: "Technology — rPPG & Sensor Occlusion Guards" },
+      { property: "og:title", content: "Technology — rPPG & Sensor Occlusion Guards | PulseProof" },
       {
         property: "og:description",
         content:
-          "Two layers: cardiac signal extraction from ordinary video, and hardware-level sensor integrity checks.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
     ],
   }),

@@ -13,12 +13,13 @@ export const Route = createFileRoute("/scanner")({
       {
         name: "description",
         content:
-          "Run a live PulseProof scan: webcam capture, targeting reticle, real-time cardiac waveform and instant human / deepfake / occlusion verdicts.",
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
-      { property: "og:title", content: "PulseProof Live Scanner" },
+      { property: "og:title", content: "Live Scanner — Real-Time Liveness Verification | PulseProof" },
       {
         property: "og:description",
-        content: "Real-time rPPG liveness dashboard with cardiac waveform and verdict states.",
+        content:
+          "PulseProof detects AI deepfakes by reading the micro-vascular pulse of living skin through any camera. Real biology beats synthetic pixels.",
       },
     ],
   }),

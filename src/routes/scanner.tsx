@@ -457,4 +457,3 @@ function Scanner() {
     </main>
   );
 }
-}
